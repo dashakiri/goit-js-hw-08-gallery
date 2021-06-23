@@ -14,6 +14,8 @@ const { mainContainer, overlayContainer, imageContainer, lightboxImage, closeLig
 
 // подменяет значение атрибута src и открывает модальное окно по клику на картинку
 
+let currentIndex;
+
 galleryRef.addEventListener('click', onOpenLightbox);
 
 function onOpenLightbox(event) {
@@ -27,50 +29,37 @@ function onOpenLightbox(event) {
 
     lightboxImage.src = galleryImage.dataset.source;
     lightboxImage.alt = galleryImage.alt;
-    lightboxImage.dataset.index = galleryImage.dataset.index;
+    currentIndex = +galleryImage.dataset.index;
 
-    // console.log(lightboxImage.dataset.index);
+    console.log(currentIndex);
 
     window.addEventListener('keydown', onEscapeKeyPress);
     window.addEventListener('keydown', onArrowLeft);
     window.addEventListener('keydown', onArrowRight);
     
     mainContainer.classList.add('is-open');
-    
-    return;
 };
 
 // закрывает модальное окно по клику на кнопку закрыть
 
 closeLightboxButton.addEventListener('click', onCloseLightbox);
 
-function onCloseLightbox(event) {
-    event.preventDefault()
-
+function onCloseLightbox() {
     mainContainer.classList.remove('is-open');
+
     window.removeEventListener('keydown', onEscapeKeyPress);
     window.removeEventListener('keydown', onArrowLeft);
- window.removeEventListener('keydown', onArrowRight);
+    window.removeEventListener('keydown', onArrowRight);
 
     lightboxImage.src = '';
     lightboxImage.alt = '';
-    lightboxImage.dataset.index = '';
-
-    return;
 };
 
-// Закрытие модального окна по клику на div.lightbox__overlay.
+// // Закрытие модального окна по клику на div.lightbox__overlay.
 
-overlayContainer.addEventListener('click', onLightboxOverlayClick);
+overlayContainer.addEventListener('click', onCloseLightbox);
 
-function onLightboxOverlayClick(event) {
-    if (event.currentTarget === event.target) {
-        onCloseLightbox(event);
-    };
-    return;
-};
-
-// Закрытие модального окна по нажатию клавиши ESC.
+// // Закрытие модального окна по нажатию клавиши ESC.
 
 function onEscapeKeyPress(event) {
     const ESC_KEY_CODE = 'Escape';
@@ -81,38 +70,34 @@ function onEscapeKeyPress(event) {
     return;
 };
 
-// Пролистывание изображений галереи в открытом модальном окне клавишами "влево" и "вправо".
+// // Пролистывание изображений галереи в открытом модальном окне клавишами "влево" и "вправо".
 
 function onArrowLeft(event) {
+    if (event.code === "ArrowLeft") {
+        if (currentIndex - 1 < 0) {
+            currentIndex = galleryItems.length - 1;
+        } else {
+            currentIndex -= 1;
+        }
 
-    let currentIndex = event.target.dataset.index;
-    
-    if (currentIndex - 1 < 0) {
-        currentIndex = galleryItems.length - 1;
-    } else {
-        currentIndex -= 1;
+        lightboxImage.src = galleryItems[currentIndex].original;
+        lightboxImage.alt = galleryItems[currentIndex].description;
+        
+        console.log(currentIndex);
+        console.log(galleryItems[currentIndex].description)
+        console.log(lightboxImage.dataset.source)
     }
-
-    lightboxImage.dataset.source = galleryItems[currentIndex].original;
-    lightboxImage.alt = galleryItems[currentIndex].description;
-    
-    console.log(currentIndex);
-    console.log(galleryItems[currentIndex].description)
-    console.log(lightboxImage.dataset.source)
 }
 
 function onArrowRight(event) {
-
-    let currentImageIndex = event.target.dataset.index;
-
-    if (currentImageIndex + 1 > galleryItems.length - 1) {
-        currentImageIndex = 0;
-    } else {
-        currentImageIndex += 1;
-    }
-
-    lightboxImage.src = galleryItems[currentImageIndex].original;
-    lightboxImage.alt = galleryItems[currentImageIndex].description;
+    if (event.code === "ArrowRight") {
+		if (currentIndex + 1 > galleryItems.length - 1) {
+			currentIndex = 0;
+		} else {
+			currentIndex += 1;
+		}
+		lightboxImage.src = galleryItems[currentIndex].original;
+		lightboxImage.alt = galleryItems[currentIndex].description;
+	}
     
-}
-
+    }
